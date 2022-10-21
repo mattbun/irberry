@@ -20,6 +20,9 @@
   };
 
   # TODO set up lirc
+  boot.loader.raspberryPi.firmwareConfig = ''
+    dtoverlay=gpio-ir-tx,gpio_pin=24
+  '';
 
   environment.systemPackages = with pkgs; [
     mosquitto
