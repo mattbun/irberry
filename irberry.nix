@@ -56,6 +56,7 @@
     wantedBy = [ "multi-user.target" ];
   };
 
+  system.copySystemConfiguration = true;
 
   # Periodically clean up old nix generations
   nix.gc.automatic = true;
