@@ -23,7 +23,7 @@
 
   services.lirc = {
     enable = true;
-
+    options = "";
     configs = [
       ''
         begin remote
