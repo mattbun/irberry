@@ -15,11 +15,53 @@
     initialPassword = "changeme";
   };
 
-  services = {
-    sshd.enable = true;
+  services.sshd.enable = true;
+
+  services.lirc = {
+    enable = true;
+
+    configs = [
+      ''
+        begin remote
+
+          name  DENON_RC1120_2
+          bits           24
+          flags SPACE_ENC
+          eps            30
+          aeps          100
+
+          header       3444  1602
+          one           491  1196
+          zero          491   356
+          ptrail        481
+          pre_data_bits   24
+          pre_data       0x2A4C02
+          gap          74554
+          min_repeat      4
+          toggle_bit_mask 0x0
+
+              begin codes
+                  BTN_QUICK1               0x8248C8
+                  BTN_QUICK2               0x8A48C0
+                  BTN_QUICK3               0x8648CC
+                  BTN_SPEAKERS             0x88840E
+                  BTN_SLEEP                0x822CAC
+                  SRC_IPOD                 0x8B34BD
+                  SRC_SELECT               0x8AD45C
+                  BTN_DYNEQ                0x8C44CA
+                  BTN_DYNVOL               0x8844CE
+                  BTN_MENU                 0x8C40CE
+                  BTN_SEARCH               0x8EBC30
+                  BTN_RETURN               0x8440C6
+                  BTN_DST                  0x88C842
+                  BTN_RESTORER             0x8244C4
+              end codes
+
+        end remote
+      ''
+    ];
   };
 
-  # TODO set up lirc
   boot.loader.raspberryPi.firmwareConfig = ''
     dtoverlay=gpio-ir-tx,gpio_pin=24
   '';
