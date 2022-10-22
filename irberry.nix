@@ -5,7 +5,15 @@
     <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
   ];
 
-  networking.hostName = "irberry";
+  networking = {
+    hostName = "irberry";
+    wireless.networks = {
+      # Set Wifi SSID and password with env vars "WIFI_SSID" and "WIFI_PSK"
+      "${(builtins.getEnv "WIFI_SSID")}" = {
+        psk = builtins.getEnv "WIFI_PSK";
+      };
+    };
+  };
 
   sdImage = {
     compressImage = false;
