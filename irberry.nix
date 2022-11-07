@@ -7,10 +7,13 @@
 
   networking = {
     hostName = "irberry";
-    wireless.networks = {
-      # Set Wifi SSID and password with env vars "WIFI_SSID" and "WIFI_PSK"
-      "${(builtins.getEnv "WIFI_SSID")}" = {
-        psk = builtins.getEnv "WIFI_PSK";
+    wireless = {
+      enable = true;
+      networks = {
+        # Set Wifi SSID and password with env vars "WIFI_SSID" and "WIFI_PSK"
+        "${(builtins.getEnv "WIFI_SSID")}" = {
+          psk = builtins.getEnv "WIFI_PSK";
+        };
       };
     };
   };
