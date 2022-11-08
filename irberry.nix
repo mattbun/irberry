@@ -28,6 +28,12 @@ in
     };
   };
 
+  # Add network credentials as environment variables so `nixos-rebuild switch` can be run on the pi
+  environment.variables = {
+    WIFI_SSID = wifiSSID;
+    WIFI_PSK = wifiPSK;
+  };
+
   sdImage = {
     compressImage = false;
     imageName = "nixos-sd-image-irberry.img";
