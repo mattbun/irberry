@@ -1,5 +1,15 @@
 { pkgs, ... }:
 
+let
+  requireEnvVar = { name }:
+    let envVarValue = builtins.getEnv "${name}"; in
+    if envVarValue == "" then
+      throw "Environment variable '${name}' is unset"
+    else envVarValue;
+
+  wifiSSID = requireEnvVar { name = "WIFI_SSID"; };
+  wifiPSK = requireEnvVar { name = "WIFI_PSK"; };
+in
 {
   imports = [
     <nixpkgs/nixos/modules/installer/sd-card/sd-image-aarch64.nix>
@@ -11,8 +21,8 @@
       enable = true;
       networks = {
         # Set Wifi SSID and password with env vars "WIFI_SSID" and "WIFI_PSK"
-        "${(builtins.getEnv "WIFI_SSID")}" = {
-          psk = builtins.getEnv "WIFI_PSK";
+        "${wifiSSID}" = {
+          psk = wifiPSK;
         };
       };
     };
