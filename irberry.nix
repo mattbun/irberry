@@ -96,9 +96,56 @@ in
     ];
   };
 
-  boot.loader.raspberryPi.firmwareConfig = ''
-    dtoverlay=gpio-ir-tx,gpio_pin=24
-  '';
+  hardware = {
+    deviceTree = {
+      enable = true;
+      overlays = [
+        {
+          name = "gpio-ir-tx";
+          # https://github.com/raspberrypi/linux/blob/rpi-5.10.y/arch/arm/boot/dts/overlays/gpio-ir-tx-overlay.dts
+          # ... but with 18 replaced with 24 and brcm2835 replaced with brcm2837 (to match rpi3)
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+
+            / {
+              compatible = "brcm,bcm2837";
+
+              fragment@0 {
+                target = <&gpio>;
+                __overlay__ {
+                  gpio_ir_tx_pins: gpio_ir_tx_pins@12 {
+                    brcm,pins = <24>;
+                    brcm,function = <1>;	// out
+                  };
+                };
+              };
+
+              fragment@1 {
+                target-path = "/";
+                __overlay__ {
+                  gpio_ir_tx: gpio-ir-transmitter@12 {
+                    compatible = "gpio-ir-tx";
+                    pinctrl-names = "default";
+                    pinctrl-0 = <&gpio_ir_tx_pins>;
+                    gpios = <&gpio 24 0>;
+                  };
+                };
+              };
+
+              __overrides__ {
+                gpio_pin = <&gpio_ir_tx>, "gpios:4",           	// pin number
+                     <&gpio_ir_tx>, "reg:0",
+                     <&gpio_ir_tx_pins>, "brcm,pins:0",
+                     <&gpio_ir_tx_pins>, "reg:0";
+                invert = <&gpio_ir_tx>, "gpios:8";		// 1 = active low
+              };
+            };
+          '';
+        }
+      ];
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     mosquitto
