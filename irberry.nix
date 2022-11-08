@@ -50,7 +50,10 @@ in
 
   services.lirc = {
     enable = true;
-    options = "";
+    options = ''
+      [lircd]
+      device = /dev/lirc0
+    '';
     configs = [
       ''
         begin remote
