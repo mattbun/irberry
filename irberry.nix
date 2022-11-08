@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 let
   requireEnvVar = { name }:
@@ -179,7 +179,20 @@ in
     wantedBy = [ "multi-user.target" ];
   };
 
-  system.copySystemConfiguration = true;
+  # Override default nixos-config path to keep file names the same between /etc and this repo
+  # TODO or maybe just rename this file to configuration.nix?
+  nix.nixPath = [
+    "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
+    "nixos-config=/etc/nixos/irberry.nix"
+    "/nix/var/nix/profiles/per-user/root/channels"
+  ];
+
+  # Put a copy of this configuration in /etc/nixos
+  environment.etc."nixos/irberry.nix" = {
+    mode = "0660";
+    gid = config.users.groups.wheel.gid;
+    text = builtins.readFile (./. + "/irberry.nix");
+  };
 
   # Periodically clean up old nix generations
   nix.gc.automatic = true;
