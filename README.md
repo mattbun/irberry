@@ -2,9 +2,7 @@
 
 NixOS configuration for a Raspberry Pi 3 IR transmitter controllable using MQTT.
 
-## Build
-
-### Prerequisites
+## Prerequisites
 
 The following instructions are specific to NixOS. It might be possible to build it on other platforms (as long as they have `nix` installed) but I haven't tried.
 
@@ -15,7 +13,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 nix.settings.extra-platforms = [ "aarch64-linux" "arm-linux" ];
 ```
 
-### Configuration
+## Configuration
 
 Wifi credentials are configured using the following environment variables:
 
@@ -31,7 +29,7 @@ WIFI_PSK="..."
 
 These credentials will be set as global environment variables in the resulting NixOS installation. The build will fail if they are unset.
 
-### Installation
+## Installation
 
 1. Build the sd card image by running
 
@@ -57,7 +55,7 @@ These credentials will be set as global environment variables in the resulting N
 
 5. The raspberry pi should now be connected to the MQTT broker and sending IR signals when commands are sent to the topic `irberry/button`!
 
-### Updating an existing installation
+## Updating an existing installation
 
 1. `ssh` into the raspberry pi
 
