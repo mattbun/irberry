@@ -33,25 +33,25 @@ These credentials will be set as global environment variables in the resulting N
 
 1. Build the sd card image by running
 
-  ```shell
-  make
-  ```
+    ```shell
+    make
+    ```
 
 2. Install the image on a SD card
 
-  ```shell
-  sudo dd if=./result/sd-image/nixos-sd-image-irberry.img of=/dev/sda bs=4096 conv=fsync
-  ```
+    ```shell
+    sudo dd if=./result/sd-image/nixos-sd-image-irberry.img of=/dev/sda bs=4096 conv=fsync
+    ```
 
 3. Put the SD card into the raspberry pi and start it up!
 
 4. It'll take a minute or two for it to start, but once it's up and running change the password
 
-  ```shell
-  # initial password is 'changeme'
-  ssh matt@<ip-address>
-  passwd
-  ```
+    ```shell
+    # initial password is 'changeme'
+    ssh matt@<ip-address>
+    passwd
+    ```
 
 5. The raspberry pi should now be connected to the MQTT broker and sending IR signals when commands are sent to the topic `irberry/button`!
 
@@ -59,19 +59,19 @@ These credentials will be set as global environment variables in the resulting N
 
 1. `ssh` into the raspberry pi
 
-  ```shell
-  ssh matt@<ip-address>
-  ```
+    ```shell
+    ssh matt@<ip-address>
+    ```
 
 2. Update nix channels
 
-  ```shell
-  sudo nix-channel --update
-  ```
+    ```shell
+    sudo nix-channel --update
+    ```
 
 3. Run `nixos-rebuild switch`, but be sure to open a root shell so the environment variables are set properly
 
-  ```shell
-  sudo bash
-  nixos-rebuild switch
-  ```
+    ```shell
+    sudo bash
+    nixos-rebuild switch
+    ```
