@@ -12,6 +12,11 @@ let
   mqttBrokerHost = "192.168.1.2";
   mqttBrokerPort = "1883";
   mqttTopic = "irberry/button";
+
+  # These control what to do with the ACT (green) LED
+  # For available options, run `cat /sys/class/leds/ACT/trigger` on the pi
+  actTriggerDefault = "none";
+  actTriggerActive = "default-on"; # when irsend is active
 in
 {
   imports = [
@@ -163,6 +168,7 @@ in
     preStart = ''
       ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat}/bin/nc -z -v -w1 ${mqttBrokerHost} ${mqttBrokerPort} 2>/dev/null;
       do echo "Waiting for MQTT broker to be available..."; sleep 2; done); sleep 2'
+      echo "${actTriggerDefault}" > /sys/class/leds/ACT/trigger
     '';
     script = ''
       #!/bin/bash
@@ -171,6 +177,9 @@ in
         COMMAND="$1"
         echo "$COMMAND"
 
+        # turn on ACT led
+        echo "${actTriggerActive}" > /sys/class/leds/ACT/trigger
+
         if [[ "$COMMAND" = "BTN_QUICK1" ]]; then
           ${pkgs.lirc}/bin/irsend SEND_ONCE DENON_RC1120_2 BTN_QUICK1
         elif [[ "$COMMAND" = "BTN_QUICK2" ]]; then
@@ -178,6 +187,9 @@ in
         else
           echo "Unknown command"
         fi
+
+        # turn off ACT led
+        echo "${actTriggerDefault}" > /sys/class/leds/ACT/trigger
       }
 
       export -f onPublish
