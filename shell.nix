@@ -3,5 +3,6 @@ mkShell {
   nativeBuildInputs = [
     mosquitto
     netcat
+    gnumake
   ];
 }
