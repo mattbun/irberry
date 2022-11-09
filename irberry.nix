@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 
 let
   requireEnvVar = { name }:
@@ -48,6 +48,8 @@ in
 
   services.sshd.enable = true;
 
+  # TODO /dev/lirc0 isn't writable by lirc user
+  systemd.services.lircd.serviceConfig.User = lib.mkForce "root";
   services.lirc = {
     enable = true;
     options = ''
