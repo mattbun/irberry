@@ -9,6 +9,9 @@ let
 
   wifiSSID = requireEnvVar { name = "WIFI_SSID"; };
   wifiPSK = requireEnvVar { name = "WIFI_PSK"; };
+
+  gpioPin = 24;
+
   mqttBrokerHost = "192.168.1.2";
   mqttBrokerPort = "1883";
   mqttTopic = "irberry/button";
@@ -114,7 +117,7 @@ in
         {
           name = "gpio-ir-tx";
           # https://github.com/raspberrypi/linux/blob/rpi-5.10.y/arch/arm/boot/dts/overlays/gpio-ir-tx-overlay.dts
-          # ... but with 18 replaced with 24 and brcm2835 replaced with brcm2837 (to match rpi3)
+          # ... but with 18 replaced with ${gpioPin} and brcm2835 replaced with brcm2837 (to match rpi3)
           dtsText = ''
             /dts-v1/;
             /plugin/;
@@ -126,7 +129,7 @@ in
                 target = <&gpio>;
                 __overlay__ {
                   gpio_ir_tx_pins: gpio_ir_tx_pins@12 {
-                    brcm,pins = <24>;
+                    brcm,pins = <${toString gpioPin}>;
                     brcm,function = <1>;	// out
                   };
                 };
@@ -139,7 +142,7 @@ in
                     compatible = "gpio-ir-tx";
                     pinctrl-names = "default";
                     pinctrl-0 = <&gpio_ir_tx_pins>;
-                    gpios = <&gpio 24 0>;
+                    gpios = <&gpio ${toString gpioPin} 0>;
                   };
                 };
               };
