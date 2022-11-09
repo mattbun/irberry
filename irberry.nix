@@ -61,6 +61,7 @@ in
     '';
     configs = [
       ''
+        # https://lirc.sourceforge.net/remotes/denon/RC-1120
         begin remote
 
           name  DENON_RC1120_2
