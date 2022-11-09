@@ -9,6 +9,9 @@ let
 
   wifiSSID = requireEnvVar { name = "WIFI_SSID"; };
   wifiPSK = requireEnvVar { name = "WIFI_PSK"; };
+  mqttBrokerHost = "192.168.1.2";
+  mqttBrokerPort = "1883";
+  mqttTopic = "irberry/button";
 in
 {
   imports = [
@@ -154,29 +157,31 @@ in
     netcat
   ];
 
-  systemd.user.services.irberry = {
+  systemd.services.irberry = {
     description = "Subscribes to a MQTT topic and runs lirc commands on publish";
     preStart = ''
-      /run/current-system/sw/bin/bash -c '(while ! /run/current-system/sw/bin/nc -z -v -w1 192.168.1.2 1883 2>/dev/null; do echo "Waiting for MQTT broker to be available..."; sleep 2; done); sleep 2'
+      ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat}/bin/nc -z -v -w1 ${mqttBrokerHost} ${mqttBrokerPort} 2>/dev/null;
+      do echo "Waiting for MQTT broker to be available..."; sleep 2; done); sleep 2'
     '';
     script = ''
       #!/bin/bash
 
       onPublish() {
         COMMAND="$1"
+        echo "$COMMAND"
 
         if [[ "$COMMAND" = "BTN_QUICK1" ]]; then
-          echo "1"
+          ${pkgs.lirc}/bin/irsend SEND_ONCE DENON_RC1120_2 BTN_QUICK1
         elif [[ "$COMMAND" = "BTN_QUICK2" ]]; then
-          echo "2"
+          ${pkgs.lirc}/bin/irsend SEND_ONCE DENON_RC1120_2 BTN_QUICK2
         else
-          echo "what"
+          echo "Unknown command"
         fi
       }
 
       export -f onPublish
 
-      mosquitto_sub -h 192.168.1.2 -t irberry/button | xargs -L1 bash -c 'onPublish "$@"' _
+      ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
     '';
     wantedBy = [ "multi-user.target" ];
   };
