@@ -244,6 +244,7 @@ in
   environment.systemPackages = with pkgs; [
     mosquitto
     netcat
+    flock
   ];
 
   systemd.services.irberry = {
@@ -277,11 +278,12 @@ in
 
         # turn off ACT led
         echo "${actTriggerDefault}" > /sys/class/leds/ACT/trigger
+        sleep 0.1
       }
 
       export -f onPublish
 
-      ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
+      ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.flock}/bin/flock -n /tmp/irsend.lock ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
     '';
     wantedBy = [ "multi-user.target" ];
   };
