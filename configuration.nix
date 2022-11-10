@@ -107,6 +107,86 @@ in
 
         end remote
       ''
+
+      ''
+        # https://sourceforge.net/p/lirc-remotes/code/ci/master/tree/remotes/denon/RC-1161.lircd.conf
+        begin remote
+          name  denon_1161
+          bits           32
+          flags SPACE_ENC
+          eps            30
+          aeps          100
+
+          header       3386  1681
+          one           423  1256
+          zero          423   416
+          ptrail        422
+          pre_data_bits   16
+          pre_data       0x2A4C
+          gap          74435
+          min_repeat      1
+        #  suppress_repeat 1
+        #  uncomment to suppress unwanted repeats
+          toggle_bit_mask 0x0
+
+              begin codes
+                  KEY_1                    0x04840080
+                  KEY_2                    0x048C0088
+                  KEY_3                    0x04820086
+                  KEY_4                    0x048A008E
+                  KEY_5                    0x04860082
+                  KEY_6                    0x048E008A
+                  KEY_7                    0x04810085
+                  KEY_8                    0x0489008D
+                  KEY_9                    0x04850081
+                  KEY_0                    0x0488008C
+                  KEY_102ND                0x04830087
+                  KEY_SEARCH               0x048F40CB
+                  KEY_EJECTCLOSECD         0x04808004
+                  KEY_INFO                 0x04878003
+                  KEY_HOME                 0x048A20AE
+                  KEY_CLEAR                0x048B800F
+                  KEY_PROGRAM              0x048BC04F
+                  KEY_POWER2               0x0288008A
+                  KEY_VOLUMEUP             0x0280E86A
+                  KEY_VOLUMEDOWN           0x0288E862
+                  KEY_CONTEXT_MENU         0x0488800C
+                  KEY_MENU                 0x048B40CF
+                  KEY_EXIT                 0x04848000
+                  KEY_SETUP                0x048340C7
+                  KEY_FORWARD              0x04858001
+                  KEY_REWIND               0x048D8009
+                  KEY_NEXT                 0x04818005
+                  KEY_PREVIOUS             0x0489800D
+                  KEY_PLAY                 0x04838007
+                  KEY_STOP                 0x048E800A
+                  KEY_PAUSE                0x04868002
+                  KEY_MEDIA_REPEAT         0x048C8008
+                  KEY_SHUFFLE              0x048F800B
+                  KEY_ANGLE                0x048F008B
+                  KEY_SUBTITLE             0x048B008F
+                  KEY_AUDIO                0x04870083
+                  KEY_OPTION               0x0488C04C
+                  KEY_RED                  0x0484C040
+                  KEY_GREEN                0x048CC048
+                  KEY_YELLOW               0x0482C046
+                  KEY_BLUE                 0x048AC04E
+                  KEY_SWITCHVIDEOMODE      0x048A800E
+                  YOUTUBE                  0x048620A2
+                  NETFLIX                  0x048E20AA
+                  NEXTINPUT                0x028C8C02
+                  PREVIOUSINPUT            0x02828C0C
+                  DIMMER                   0x0489C04D
+                  CALL                     0x048740C3
+                  PICTUREADJUST            0x0481C045
+                  DISCLAYER                0x0483C047
+                  DVDAPAGE                 0x048EC04A
+                  REPEAT_A-B               0x048540C1
+
+              end codes
+
+        end remote
+      ''
     ];
   };
 
@@ -187,6 +267,10 @@ in
           ${pkgs.lirc}/bin/irsend SEND_ONCE DENON_RC1120_2 BTN_QUICK1
         elif [[ "$COMMAND" = "BTN_QUICK2" ]]; then
           ${pkgs.lirc}/bin/irsend SEND_ONCE DENON_RC1120_2 BTN_QUICK2
+        elif [[ "$COMMAND" = "KEY_VOLUMEUP" ]]; then
+          ${pkgs.lirc}/bin/irsend SEND_ONCE denon_1161 KEY_VOLUMEUP
+        elif [[ "$COMMAND" = "KEY_VOLUMEDOWN" ]]; then
+          ${pkgs.lirc}/bin/irsend SEND_ONCE denon_1161 KEY_VOLUMEDOWN
         else
           echo "Unknown command"
         fi
