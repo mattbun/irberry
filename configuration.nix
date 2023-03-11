@@ -286,6 +286,10 @@ in
       ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.flock}/bin/flock -n /tmp/irsend.lock ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
     '';
     wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = 5;
+    };
   };
 
   # Put a copy of this configuration in /etc/nixos
