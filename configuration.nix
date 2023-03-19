@@ -16,6 +16,8 @@ let
   mqttBrokerPort = 1883;
   mqttTopic = "irberry/button";
 
+  castDeviceHost = "192.168.1.6";
+
   # These control what to do with the ACT (green) LED
   # For available options, run `cat /sys/class/leds/ACT/trigger` on the pi
   actTriggerDefault = "none";
@@ -307,6 +309,21 @@ in
         allow_anonymous = true;
       };
     }];
+  };
+
+  # https://github.com/mattbun/castaway
+  virtualisation.oci-containers.containers = {
+    castaway = {
+      image = "ghcr.io/mattbun/castaway:latest";
+      extraOptions = [ "--network=host" ];
+      environment = {
+        CASTAWAY_HOST = castDeviceHost;
+        CASTAWAY_MQTT_BROKER = "tcp://${mqttBrokerHost}:${builtins.toString mqttBrokerPort}";
+        CASTAWAY_MQTT_TOPIC = mqttTopic;
+        CASTAWAY_MQTT_MESSAGE_ON_START = "BTN_QUICK1";
+        CASTAWAY_MQTT_MESSAGE_ON_END = "BTN_QUICK2";
+      };
+    };
   };
 
   # Put a copy of this configuration in /etc/nixos
