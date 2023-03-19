@@ -12,8 +12,8 @@ let
 
   gpioPin = 24;
 
-  mqttBrokerHost = "192.168.1.2";
-  mqttBrokerPort = "1883";
+  mqttBrokerHost = "localhost"; # If set to "localhost", an MQTT broker will be run locally
+  mqttBrokerPort = 1883;
   mqttTopic = "irberry/button";
 
   # These control what to do with the ACT (green) LED
@@ -250,7 +250,7 @@ in
   systemd.services.irberry = {
     description = "Subscribes to a MQTT topic and runs lirc commands on publish";
     preStart = ''
-      ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat}/bin/nc -z -v -w1 ${mqttBrokerHost} ${mqttBrokerPort} 2>/dev/null;
+      ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat}/bin/nc -z -v -w1 ${mqttBrokerHost} ${builtins.toString mqttBrokerPort} 2>/dev/null;
       do echo "Waiting for MQTT broker to be available..."; sleep 2; done); sleep 2'
       echo "${actTriggerDefault}" > /sys/class/leds/ACT/trigger
     '';
@@ -278,18 +278,35 @@ in
 
         # turn off ACT led
         echo "${actTriggerDefault}" > /sys/class/leds/ACT/trigger
-        sleep 0.1
+        sleep 0.05
       }
 
       export -f onPublish
 
-      ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.flock}/bin/flock -n /tmp/irsend.lock ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
+      ${pkgs.mosquitto}/bin/mosquitto_sub -h ${mqttBrokerHost} -p ${builtins.toString mqttBrokerPort} -t ${mqttTopic} | xargs -L1 ${pkgs.flock}/bin/flock -n /tmp/irsend.lock ${pkgs.bash}/bin/bash -c 'onPublish "$@"' _
     '';
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Restart = "always";
       RestartSec = 5;
     };
+  };
+
+  networking.firewall = lib.mkIf (mqttBrokerHost == "localhost") {
+    allowedTCPPorts = [ mqttBrokerPort ];
+  };
+
+  services.mosquitto = lib.mkIf (mqttBrokerHost == "localhost") {
+    enable = true;
+    listeners = [{
+      port = mqttBrokerPort;
+      acl = [
+        "topic readwrite ${mqttTopic}"
+      ];
+      settings = {
+        allow_anonymous = true;
+      };
+    }];
   };
 
   # Put a copy of this configuration in /etc/nixos
